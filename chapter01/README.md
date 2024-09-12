@@ -233,9 +233,9 @@ The `fibonacci` code fragment below uses *parallel construction*, `p PAR_AND q`,
 
 ### Conclusion
 
- - `FP` is a *function level programming language*,
- - the program DSL that the course documents is a *program level programming library*,
-   as such naturally offering *implementation flexibility* and *feature specification extensibility*.
+Compared with `FP`. a *function level programming language*, the program DSL that the course documents is a
+*program level programming library*, as such naturally offering *implementation flexibility* and 
+*effectfree and effectful feature specification extensibility*.
 
 Please keep on reading ... .
 

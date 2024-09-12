@@ -1,6 +1,6 @@
 package utilities
-
 extension [Z, Y](z: Z) infix def bind(f_z2y: Function[Z, Y]): Y = f_z2y apply z
+
 
 import types.Expression
 
