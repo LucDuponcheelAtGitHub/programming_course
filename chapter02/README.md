@@ -9,8 +9,8 @@ an *`Y` result* are called *`Y` producing functions*.
 
 In this chapter argument types and result types are *primitive types*, like `Boolean`, `BigInt` ... .
 
-Recall that functions are defined using *lambda expressions*. Lambda expressions are of the form `z => e(z)` or, when
-the `Scala` type system requires it, `(z: Z) => e(z)`, with *parameter*, `z`, and a *defining expression* `e(z)`.
+Recall that functions are defined using *lambda expressions*. Lambda expressions are of the form `z => e_z` or, when
+the `Scala` type system requires it, `(z: Z) => e_z`, with *parameter*, `z`, and a *defining expression* `e_z`.
 
 Lambda expressions are *function literals*, *function values* that are called *anonymous functions*. The expression of a
 lambda expression can itself be a lambda expression in which case the lambda expression is a, *higher-order*,
@@ -18,15 +18,15 @@ lambda expression can itself be a lambda expression in which case the lambda exp
 
 ### The `bind` Binary Operation
 
-*Binary operations* can be declared as `infix extension`s and defined accordingly. Binary operations then can be used
-with *infix notation*. The course uses the *binding an argument to a function* binary operation instead of the
+*Binary operations* can be declared as `infix extension`s and defined accordingly. Binary operations can e used with
+*infix notation*. The course uses the *binding an argument to a function* binary operation instead of the
 *applying a function to an argument* binary operation. Below is the `bind` binary operation definition in terms of
 `apply`.
 
 ```scala
 package utilities
 
-extension [Z, Y](z: Z) infix def bind(f_z2y: Function[Z, Y]): Y = f_z2y apply z
+extension [Z, Y](z: Z) infix def bind(f_z2y: => Function[Z, Y]): Y = f_z2y apply z
 ```
 
 `f_z2y apply z` is just another way of writing `f_z2y(z)`.
@@ -40,9 +40,12 @@ Functions like `f_y2x` in expressions like `z bind f_z2y bind f_y2x` are also ca
 *continuations* for short. Once an argument `a` has been bound to function `f_z2y`, transforming it to a result `b`,
 transforming *continues* by using `b` as an argument and binding it to `f_y2x`.
 
-In my opinion it is instructive to think about `bind` as an operation binding an expression argument `ez` to an
-expression producing function `bindExpression`. Below is the `bindExpression` binary operation definition in terms of
-`bind`.
+The first parameter, `z`, of `BIND` is a *call by value*, *cbv* for short, one, the second parameter, `f_z2y`, of `BIND`
+is a *call by name*, *cbn* for short, one. Ideally cbn parameters should be *lazy* parameters, but, as far as I know,
+`Scala` does not fully support lazy parameters yet.
+
+Recall that you can also think about `bind` as an operation binding an expression argument `ez` to an expression
+producing function `bindExpression`. Below is the `bindExpression` binary operation definition in terms of `bind`.
 
 Let
 
@@ -62,12 +65,11 @@ package utilities
 import types.Expression
 
 extension [Z, Y](ez: Expression[Z])
-  infix def bindExpression(f_z2ey: Function[Z, Expression[Y]]): Expression[Y] =
+  infix def bindExpression(f_z2ey: => Function[Z, Expression[Y]]): Expression[Y] =
     ez bind f_z2ey
 ```
 
-Recall that *expression producing functions* can, operationally, be seen as *expression evaluation continuations* as
-explained in the introduction.
+Recall that *expression producing functions* can, operationally, be seen as *expression evaluation continuations*.
 
 ### Specifications And Implementations
 
@@ -173,7 +175,7 @@ package lpi.specification
 private[lpi] trait Bind[Computation[+_]]:
 
   extension [Z, Y](cz: Computation[Z])
-    private[lpi] infix def BIND(f_z2cy: FunctionProducing[Computation][Z, Y]): Computation[Y]
+    private[lpi] infix def BIND(f_z2cy: => FunctionProducing[Computation][Z, Y]): Computation[Y]
 ```
 
 in
@@ -187,33 +189,14 @@ private[lpi] trait ComputationSpec[Computation[+_]]
 ```
 
 `BIND` is a *pointful computation combinator*, not only computations are involved. It models a *generic abstraction* of 
-*binding an inner expression evaluation result to an expression evaluation continuation*.
+*binding an inner expression evaluation result to an outer expression evaluation continuation* or
+*binding an outer expression evaluation result to an inner expression evaluation continuation*.
 
 `BIND` can also be seen as a generic abstraction of *binding an argument to a function*. This is a
-*pointful program combinator* that the course does not generically abstracts.
+*pointful program combinator* that, intentionally, the course does not generically abstracts.
 
 Unary type constructor parameter `Computation`, is *covariant* in its parameter type meaning that a computation, say
-`cy`, of type `Computation[Y]`, may, when executed at runtime, yield a result having a more specific type than `Y`.
-
-### Pointfree and Pointful
-
-The pointfree code of `zero` is *simpler* (*less complex*) than the pointful code of `zero`. Agreed, it may not be
-*easier to understand* (*less difficult to understand*) because it has a higher level of abstraction, but, once the
-meaning of `FUNCTION_TO_PROGRAM` and `AND_THEN` is, once and for all, fully understood, it is, becomes easy to
-understand.
-
-Fully understanding something difficult, once and for all, is fun!
-
-The pointful code of `zero` is more complex than the pointfree code of `zero`. Therefore it is also, somehow, more
-difficult to understand because humans can only deal with a limited amount of complexity.
-
-Being confronted, over and over again, with difficulty caused by complexity is not fun!
-
-One of the main goals of programming in a disciplined way is to manage complexity.
-
-The code of `zero` is only one line of code, with only one
-*binding of a computation result as an argument to a computation producing function* involved. The more lines of code,
-with more such bindings of, the more important the above statements are.
+`cy`, of type `Computation[Y]`, may, when executed at runtime, yield a result having a more specific type than `Y`
 
 ### Primitve Functions
 
@@ -222,7 +205,7 @@ not benefit from the *various zyx-ilities*, like *flexibility* and *extensibilit
 commonly called *composite programs*, benefit from. 
 
 Below are some primitive functions, they all have function types involving *primitive types*, like `BigInt` and
-`Boolean` or *generic types*, laike `Z`.
+`Boolean`, or *generic types*, like `Z`.
 
 ```scala
 package examples.functions.primitive
@@ -383,7 +366,7 @@ By the way, `shouldBeTrue` could, using *underscore notation*, also have been de
     _ bind one BIND { _ bind subtractOne BIND { _ bind isZero } }
 ```
 
-being simpler than the first computation producing definition, but, in my opinion, also somewhat more cumbersome. 
+being simpler than the first computation producing definition, but also somewhat more cumbersome. 
 
 So far, the course only provided a *syntactic simplifications* at specification level. The *semantic correctness* of
 syntactic simplifications requires justification at implementation level.
@@ -511,11 +494,10 @@ Just like functions can be defined in terms of expressions, program features can
 features.
 
 `FUNCTION_TO_PROGRAM` can *generically* be *implemented* by using `EXPRESSION_TO_COMPUTATION`. The pointfree program
-combinator `AND_THEN` can *generically* be *implemented* by using the pointful computation combinator `BIND`. In my
-opinion it is instructive to think of this as a *generic abstraction* of defining `f_z2y andThen f_y2x` as
-`f_y2x(f_z2y(z))`, or `f_y2x apply (f_z2y apply z)` or, in my opinion, more natural, `z => (z bind f_z2y) bind f_y2x`
-because it naturally reads from left to right and can be simplified to `z => z bind f_z2y bind f_y2x` which does not use
-association parenthesis.
+combinator `AND_THEN` can *generically* be *implemented* by using the pointful computation combinator `BIND`. `AD_THEN`
+is a *generic abstraction* of defining `f_z2y andThen f_y2x` as `f_y2x(f_z2y(z))`, or `f_y2x apply (f_z2y apply z)` or,
+more natural, `z => (z bind f_z2y) bind f_y2x` because it naturally reads from left to right and can be simplified to
+`z => z bind f_z2y bind f_y2x` which does not use association parenthesis.
 
 ### `computationSpecToProgramImpl`
 
@@ -552,8 +534,6 @@ The definition of `AND_THEN` is a *generic abstraction* of the
 *nesting of two bindings of computation arguments to computation producing functions* pattern that is used by the code
 of `shouldBeTrue` and `shouldBeFalse`.
 
-In my opinion it is instructive to think of all this as folows:
-
  - A *functional programming design pattern* is simply a *generic abstraction* that can be used to replace the usage,
    over and over again, of a useful complex pattern, once and for all, by a simpler pattern. In this case to replace the
    complex pattern using `BIND` by the simpler one using `AND_THEN`.
@@ -588,7 +568,7 @@ given computationImpl: ComputationSpec[active.Expression] with
 
   extension [Z, Y](az: active.Expression[Z])
     private[lpi] infix def BIND(
-        f_z2ay: FunctionProducing[active.Expression][Z, Y]
+        f_z2ay: => FunctionProducing[active.Expression][Z, Y]
     ): active.Expression[Y] = az bind f_z2ay
 ```
 
@@ -624,9 +604,9 @@ import lpi.implementations.active.computationImpl
 given programImpl: ProgramSpec[active.Function] = computationSpecToProgramImpl
 ```
 
-In my opinion, it is instructive think of a `given` implementation of a `trait` specification as a *statement*, more
-precisely, an *existential statement*. Such statements can be *generic* and *specific*. Such statements can then be used
-in *proofs*, more precisely, *existential proofs*. 
+A `given` implementation of a `trait` specification is a *statement*, more precisely, an *existential statement*. Such
+statements can be *generic* and *specific*. Such statements can then be used in *proofs*, more precisely,
+*existential proofs*. 
 
 For example, the existence of a specific, in this case active, program instance follows from the existence of a generic
 program instance following from the existence of a generic computation instance and the existence of a specific, in this
@@ -733,7 +713,7 @@ given computationImpl: ComputationSpec[reactive.Expression] with
 
   extension [Z, Y](cbhz: reactive.Expression[Z])
     private[lpi] infix def BIND(
-        f_z2cbhy: FunctionProducing[reactive.Expression][Z, Y]
+        f_z2cbhy: => FunctionProducing[reactive.Expression][Z, Y]
     ): reactive.Expression[Y] = cby => { (z: Z) => cby bind (z bind f_z2cbhy) } bind cbhz
 ```
 
@@ -788,12 +768,11 @@ with
     f_u2cbhu => u => identity[Unit] bind (u bind f_u2cbhu)
 ```
 
-In my opinion it is instructive to compare the reactive definition with the active definition. The only *harmless* thing
-one can do with `u bind f_u2u` is *binding it to `identity`*, resulting in `(u bind f_u2u) bind identity`. The only
-*meaningful* thing one can do with `u bind f_u2cbhu` is *binding `identity` to it*, resulting in
-`identity[Unit] bind (u bind f_u2cbhu)`. There is some kind of *duality*, or *bi-duality* if you wish, involved here
-(values of type `Function[Z, Unit]` could be called *dual values* and values of type `Function[Function[Z, Unit], Unit]`
-could be called *bi-dual values*).
+Compare the reactive definition with the active definition. The only *harmless* thing one can do with `u bind f_u2u` is
+*binding it to `identity`*, resulting in `(u bind f_u2u) bind identity`. The only *meaningful* thing one can do with
+`u bind f_u2cbhu` is *binding `identity` to it*, resulting in `identity[Unit] bind (u bind f_u2cbhu)`. There is some
+kind of *duality*, or *bi-duality* if you wish, involved here (values of type `Function[Z, Unit]` could be called
+*dual values* and values of type `Function[Function[Z, Unit], Unit]` could be called *bi-dual values*).
 
 ### `reactive.main`
 

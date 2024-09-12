@@ -27,6 +27,11 @@ trait Programs[Program[-_, +_]: ProgramSpec]:
   private val summonedProgramSpec = summon[ProgramSpec[Program]]
   import summonedProgramSpec.FUNCTION_TO_PROGRAM
 
+  // added for chapter06
+  val readUnitArgument: Program[Unit, Unit] =
+    readUnitArgumentFunction bind FUNCTION_TO_PROGRAM
+  //
+  
   val readBigIntArgument: Program[Unit, BigInt] =
     readBigIntArgumentFunction bind FUNCTION_TO_PROGRAM
 
@@ -43,7 +48,3 @@ trait Programs[Program[-_, +_]: ProgramSpec]:
     programName bind logArgumentAndResultFunction bind FUNCTION_TO_PROGRAM
   //
 
-  // added for chapter06
-  val readUnitArgument: Program[Unit, Unit] =
-    readUnitArgumentFunction bind FUNCTION_TO_PROGRAM
-  //

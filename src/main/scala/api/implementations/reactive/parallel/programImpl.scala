@@ -18,7 +18,9 @@ given programImpl: parallel.ProgramSpec[reactive.Function] with
       reactive.programImpl.AND_THEN(f_z2cbhy)(f_y2cbhx)
 
   extension [Z, Y, X](f_z2cbhy: reactive.Function[Z, Y])
-    infix def SEQ_AND(f_z2cbhx: reactive.Function[Z, X]): reactive.Function[Z, And[Y, X]] =
+    infix def SEQ_AND(
+        f_z2cbhx: => reactive.Function[Z, X]
+    ): reactive.Function[Z, And[Y, X]] =
       reactive.programImpl.SEQ_AND(f_z2cbhy)(f_z2cbhx)
 
   extension [Z, Y, X](f_x2cbhz: => reactive.Function[X, Z])

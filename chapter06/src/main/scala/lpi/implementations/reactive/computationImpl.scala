@@ -13,5 +13,5 @@ given computationImpl: ComputationSpec[reactive.Expression] with
 
   extension [Z, Y](cbhz: reactive.Expression[Z])
     private[lpi] infix def BIND(
-        f_z2cbhy: FunctionProducing[reactive.Expression][Z, Y]
+        f_z2cbhy: => FunctionProducing[reactive.Expression][Z, Y]
     ): reactive.Expression[Y] = cby => { (z: Z) => cby bind (z bind f_z2cbhy) } bind cbhz

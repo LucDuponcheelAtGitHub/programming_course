@@ -26,7 +26,7 @@ given programImpl[S]: stateful.ProgramSpec[S, active.stateful.Function[S]] with
 
   extension [Z, Y, X](f_z2shy: active.stateful.Function[S][Z, Y])
     infix def SEQ_AND(
-        f_z2shx: active.stateful.Function[S][Z, X]
+        f_z2shx: => active.stateful.Function[S][Z, X]
     ): active.stateful.Function[S][Z, And[Y, X]] = z =>
       s =>
         val s0: S = s

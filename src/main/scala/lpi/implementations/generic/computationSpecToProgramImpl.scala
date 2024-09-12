@@ -34,7 +34,7 @@ given computationSpecToProgramImpl[Computation[+_]: ComputationSpec]
   // added for chapter03
   extension [Z, Y, X](f_z2cy: FunctionProducing[Computation][Z, Y])
     infix def SEQ_AND(
-        f_z2cx: FunctionProducing[Computation][Z, X]
+        f_z2cx: => FunctionProducing[Computation][Z, X]
     ): FunctionProducing[Computation][Z, And[Y, X]] = z =>
       z bind f_z2cy BIND { y =>
         z bind f_z2cx BIND { x =>

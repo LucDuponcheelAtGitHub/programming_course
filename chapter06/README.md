@@ -6,7 +6,7 @@ This chapter concentrates on *stateful functionality related combinators*, in pa
 
  ### `StatefulProgram`
 
-- *Programs can manipulate internal state*.
+- *Stateful programs can manipulate internal state*.
 
 Programs that manipulate internal state are called *(internal) state manipulating programs*,
 *state manipulating programs* for short.
@@ -351,6 +351,11 @@ trait Programs[Program[-_, +_]: ProgramSpec]:
   private val summonedProgramSpec = summon[ProgramSpec[Program]]
   import summonedProgramSpec.FUNCTION_TO_PROGRAM
 
+  // added for chapter06
+  val readUnitArgument: Program[Unit, Unit] =
+    readUnitArgumentFunction bind FUNCTION_TO_PROGRAM
+  //
+  
   val readBigIntArgument: Program[Unit, BigInt] =
     readBigIntArgumentFunction bind FUNCTION_TO_PROGRAM
 
@@ -365,11 +370,6 @@ trait Programs[Program[-_, +_]: ProgramSpec]:
   // added for chapter05
   def logArgumentAndResult[Z, Y](programName: String): Program[And[Z, Y], Unit] =
     programName bind logArgumentAndResultFunction bind FUNCTION_TO_PROGRAM
-  //
-
-  // added for chapter06
-  val readUnitArgument: Program[Unit, Unit] =
-    readUnitArgumentFunction bind FUNCTION_TO_PROGRAM
   //
 ```
 
@@ -490,7 +490,7 @@ given programImpl[S]: stateful.ProgramSpec[S, active.stateful.Function[S]] with
 
   extension [Z, Y, X](f_z2shy: active.stateful.Function[S][Z, Y])
     infix def SEQ_AND(
-        f_z2shx: active.stateful.Function[S][Z, X]
+        f_z2shx: => active.stateful.Function[S][Z, X]
     ): active.stateful.Function[S][Z, And[Y, X]] = z =>
       s =>
         val s0: S = s

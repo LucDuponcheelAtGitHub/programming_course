@@ -13,5 +13,5 @@ given computationImpl: ComputationSpec[active.Expression] with
 
   extension [Z, Y](az: active.Expression[Z])
     private[lpi] infix def BIND(
-        f_z2ay: FunctionProducing[active.Expression][Z, Y]
+        f_z2ay: => FunctionProducing[active.Expression][Z, Y]
     ): active.Expression[Y] = az bind f_z2ay

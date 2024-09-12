@@ -65,7 +65,7 @@ import types.And
 trait SequentialConstruction[Program[-_, +_]]:
 
   extension [Z, Y, X](p_z2y: Program[Z, Y])
-    infix def SEQ_AND(p_z2x: Program[Z, X]): Program[Z, And[Y, X]]
+    infix def SEQ_AND(p_z2x: => Program[Z, X]): Program[Z, And[Y, X]]
 ```
 
 `SEQ_AND` is a *pointfree program combinator*, only programs are involved. It models a *generic abstraction* of
@@ -540,7 +540,7 @@ given computationSpecToProgramImpl[Computation[+_]: ComputationSpec]
   // added for chapter03
   extension [Z, Y, X](f_z2cy: FunctionProducing[Computation][Z, Y])
     infix def SEQ_AND(
-        f_z2cx: FunctionProducing[Computation][Z, X]
+        f_z2cx: => FunctionProducing[Computation][Z, X]
     ): FunctionProducing[Computation][Z, And[Y, X]] = z =>
       z bind f_z2cy BIND { y =>
         z bind f_z2cx BIND { x =>
